@@ -1,0 +1,36 @@
+{
+  "name": "spacetab-io/obelix",
+  "description": "Reads an array with dot-notation and asterix (wildcard).",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "roquie",
+      "email": "roquie0@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^0.12.5",
+    "phpunit/phpunit": "^9",
+    "symfony/var-dumper": "^5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Spacetab\\Obelix\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Spacetab\\Tests\\Obelix\\": "tests"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "archive": {
+    "exclude": ["obelix.jpg"]
+  }
+}
