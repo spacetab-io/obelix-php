@@ -1,3 +1,7 @@
+<p align="center">
+    <img src="https://raw.githubusercontent.com/spacetab-io/obelix-php/master/obelix.jpg" alt="Docker" height=300>
+</p>
+
 Obelix 
 ======
 
