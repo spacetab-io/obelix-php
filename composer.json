@@ -32,5 +32,11 @@
   },
   "archive": {
     "exclude": ["obelix.jpg"]
+  },
+  "scripts": {
+    "check": [
+      "phpunit --stop-on-fail --coverage-text",
+      "phpstan analyse src --level 8"
+    ]
   }
 }

@@ -384,4 +384,151 @@ class DotTest extends TestCase
             'foo.bar.key2' => 2,
         ], $dot->get('foo.*.*')->getMap());
     }
+
+    public function testGetItemWhenSecondKeyIsNotUniqueInSubArrays()
+    {
+        $array = [
+            'server' => [
+                'foo' => [
+                    'headers' => [
+                        'omg' => 'it'
+                    ],
+                ],
+                'prerender' => [
+                    'headers' => [],
+                ],
+                'logger'    => [
+                    'enabled' => false,
+                    'level'   => 'info',
+                ],
+                'headers' => [
+                    'foo' => 'bar',
+                ],
+            ],
+        ];
+
+        $dot = new Obelix\Dot($array);
+
+        $this->assertSame([
+            'foo' => 'bar'
+        ], $dot->get('server.headers')->getValue());
+
+        $this->assertSame([
+            'server.headers' => [
+                'foo' => 'bar'
+            ]
+        ], $dot->get('server.headers')->getMap());
+    }
+
+    public function testWhenALotOfManyKeysAndValuesAreSameAkaHardestTest()
+    {
+        $array = [
+            'foo' => [
+                null,
+                'foo' => 'foo',
+                'bar' => 'bar',
+                'baz' => [
+                    'foo' => 'bar',
+                    'bar' => 'foo',
+                    'baz' => [
+                        'foo',
+                        'bar',
+                        'baz' => [
+                            'baz', 'foo', 'bar', 0
+                        ]
+                    ],
+                    'acme' => [
+                        'foo' => -10001,
+                        'bar',
+                        'baz' => [
+                            'baz', 'acme'
+                        ]
+                    ],
+                    [],
+                    false,
+                    null
+                ],
+                'faa' => [
+                    'foo' => 'bar',
+                    'bar' => 'foo',
+                    'baz' => [
+                        'faa',
+                        'baa',
+                        'baz' => [
+                            'baz', 'foo', 'bar', 1
+                        ]
+                    ],
+                    'acme' => [
+                        'foo',
+                        'bar',
+                        'baz' => [
+                            'baz', 'acme', 999
+                        ]
+                    ],
+                    true,
+                    [],
+                    new \stdClass()
+                ]
+            ],
+            'bar' => 1,
+            'acme' => [
+                'foo',
+                'bar',
+                'baz' => [
+                    'baz'
+                ]
+            ],
+            1,
+            0
+        ];
+
+        $dot = new Obelix\Dot($array);
+
+        $result = $dot->get('foo.0');
+        $this->assertSame(null, $result->getValue());
+        $this->assertSame(['foo.0' => null], $result->getMap());
+
+        $result = $dot->get('foo.baz.baz.0');
+        $this->assertSame('foo', $result->getValue());
+        $this->assertSame(['foo.baz.baz.0' => 'foo'], $result->getMap());
+
+        $expected = [
+            'foo' => -10001,
+            'bar',
+            'baz' => [
+                'baz', 'acme'
+            ]
+        ];
+        $result = $dot->get('foo.baz.acme');
+        $this->assertSame($expected, $result->getValue());
+        $this->assertSame(['foo.baz.acme' => $expected], $result->getMap());
+
+        $result = $dot->get('foo.faa.2');
+        $this->assertInstanceOf(\stdClass::class, $result->getValue());
+        $this->assertSame($array['foo']['faa'][2], $result->getValue());
+        $this->assertSame(['foo.faa.2' => $array['foo']['faa'][2]], $result->getMap());
+
+        $result = $dot->get('foo.faa.0');
+        $this->assertSame(true, $result->getValue());
+        $this->assertSame(['foo.faa.0' => true], $result->getMap());
+
+        $expected = [
+            'baz', 'acme', 999
+        ];
+        $result = $dot->get('foo.faa.acme.baz');
+        $this->assertSame($expected, $result->getValue());
+        $this->assertSame(['foo.faa.acme.baz' => $expected], $result->getMap());
+
+        $expected = [
+            'baz', 'foo', 'bar', 0
+        ];
+        $result = $dot->get('foo.baz.baz.baz.*');
+        $this->assertSame($expected, $result->getValue());
+        $this->assertSame([
+            'foo.baz.baz.baz.0' => 'baz',
+            'foo.baz.baz.baz.1' => 'foo',
+            'foo.baz.baz.baz.2' => 'bar',
+            'foo.baz.baz.baz.3' => 0,
+        ], $result->getMap());
+    }
 }

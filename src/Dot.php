@@ -65,14 +65,13 @@ final class Dot
             return new ResultSet(...self::$cache[$path]);
         }
 
-        $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($this->items), RecursiveIteratorIterator::SELF_FIRST);
-
         $pathway   = [];
         $flatArray = null;
 
         $segments       = (array) explode($this->delimiter, $path);
         $countSegments  = count($segments);
-        $countWildcards = count(array_filter($segments, fn($x) => $x === $this->wildcard));
+
+        $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($this->items), RecursiveIteratorIterator::SELF_FIRST);
 
         foreach ($it as $key => $value) {
             $pathway[$it->getDepth()] = $key;
@@ -81,7 +80,7 @@ final class Dot
                 continue;
             }
 
-            if (count(array_diff($segments, $pathway)) === $countWildcards) {
+            if ($this->isUserPathEqualsRealPath($segments, $pathway)) {
                 $flatArray[
                     implode($this->delimiter, array_slice($pathway, 0, $it->getDepth() + 1))
                 ] = $value;
@@ -98,6 +97,42 @@ final class Dot
         self::$cache[$path] = [$value, $flatArray];
 
         return new ResultSet($value, $flatArray ?? []);
+    }
+
+    /**
+     * @param array<mixed> $user
+     * @param array<mixed> $real
+     * @return bool
+     */
+    private function isUserPathEqualsRealPath(array $user, array $real): bool
+    {
+        if ($user === $real) {
+            return true;
+        }
+
+        $i = 0;
+        $equals = false;
+
+        foreach ($user as $item) {
+            $val = $real[$i] ?? false;
+
+            // to work with integer indexes in string path (for cases like "foo.0")
+            if (ctype_digit($item)) {
+                $item = (int) $item;
+            }
+
+            if ($val === $item) {
+                $equals = true;
+            } elseif ($item === $this->wildcard) {
+                $equals = true;
+            } else {
+                return false;
+            }
+
+            $i++;
+        }
+
+        return $equals;
     }
 
     /**
