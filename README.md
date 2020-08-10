@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/spacetab-io/obelix-php/master/obelix.jpg" alt="Obelix, Asterix and Idefix.">
+    <img src="https://raw.githubusercontent.com/spacetab-io/obelix-php/master/obelix.jpg" width="250px" alt="Obelix, Asterix and Idefix.">
 </p>
 
 Obelix 
