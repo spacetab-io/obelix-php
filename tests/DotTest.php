@@ -385,6 +385,21 @@ class DotTest extends TestCase
         ], $dot->get('foo.*.*')->getMap());
     }
 
+    public function testGetItemWhereWildcardPassedAsSingleSymbol()
+    {
+        $array = [
+            [1, 3, 4]
+        ];
+
+        $dot = new Obelix\Dot($array);
+
+        $result = $dot->get('*');
+        $this->assertSame($array, $result->getValue());
+        $this->assertSame([
+            '*' => $array
+        ], $result->getMap());
+    }
+
     public function testGetItemWhenSecondKeyIsNotUniqueInSubArrays()
     {
         $array = [

@@ -61,6 +61,10 @@ final class Dot
             return new ResultSet($this->items[$path], [$path => $this->items[$path]]);
         }
 
+        if ($path === $this->wildcard) {
+            return new ResultSet($this->items, [$path => $this->items]);
+        }
+
         if (isset(self::$cache[$path])) {
             return new ResultSet(...self::$cache[$path]);
         }
