@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Spacetab\Obelix;
 
+use InvalidArgumentException;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 
@@ -12,48 +13,58 @@ final class Dot
     private const DELIMITER = '.';
     private const WILDCARD  = '*';
 
-    /**
-     * @var array<mixed>
-     */
+    /** @var array<mixed> */
     private array $items;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     private static array $cache = [];
 
+    /** @var non-empty-string */
     private string $delimiter = self::DELIMITER;
+
+    /** @var non-empty-string */
     private string $wildcard  = self::WILDCARD;
 
     /**
      * Dot constructor.
      *
-     * @param array<mixed>|\Spacetab\Obelix\Dot $items
+     * @param array<mixed>|Dot $items
      */
     public function __construct($items = [])
     {
-        if ($items instanceof self) {
+        if (is_array($items)) {
+            $this->items = $items;
+        } elseif (/** @infection-ignore-all */ $items instanceof self) {
             $this->items = $items->toArray();
             self::$cache = $items->getCache();
         } else {
-            $this->items = (array) $items;
+            throw new InvalidArgumentException('The items argument must be an array or Dot instance.');
         }
     }
 
     public function setDelimiter(string $delimiter): void
     {
+        if ($delimiter === '') {
+            throw new InvalidArgumentException('The delimiter must not be an empty string.');
+        }
+
         $this->delimiter = $delimiter;
     }
 
     public function setWildcard(string $wildcard): void
     {
+        if ($wildcard === '') {
+            throw new InvalidArgumentException('The wildcard must not be an empty string.');
+        }
+
         $this->wildcard = $wildcard;
     }
 
     /**
      * @param string $path
      * @param mixed|null $default
-     * @return \Spacetab\Obelix\ResultSet
+     *
+     * @return ResultSet
      */
     public function get(string $path, $default = null): ResultSet
     {
@@ -72,8 +83,8 @@ final class Dot
         $pathway   = [];
         $flatArray = null;
 
-        $segments       = (array) explode($this->delimiter, $path);
-        $countSegments  = count($segments);
+        $segments      = explode($this->delimiter, $path);
+        $countSegments = count($segments);
 
         $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($this->items), RecursiveIteratorIterator::SELF_FIRST);
 
@@ -92,6 +103,7 @@ final class Dot
         }
 
         $value = $flatArray === null ? $default : array_values($flatArray);
+        $flatArray = $flatArray ?? [$path => $default];
 
         if (is_countable($value) && count($value) === 1) {
             // @phpstan-ignore-next-line
@@ -100,7 +112,7 @@ final class Dot
 
         self::$cache[$path] = [$value, $flatArray];
 
-        return new ResultSet($value, $flatArray ?? []);
+        return new ResultSet($value, $flatArray);
     }
 
     /**
@@ -115,9 +127,11 @@ final class Dot
         }
 
         $i = 0;
+        // @infection-ignore-all
         $equals = false;
 
         foreach ($user as $item) {
+            // @infection-ignore-all
             $val = $real[$i] ?? false;
 
             // to work with integer indexes in string path (for cases like "foo.0")

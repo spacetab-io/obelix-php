@@ -4,12 +4,40 @@ declare(strict_types=1);
 
 namespace Spacetab\Tests\Obelix;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Spacetab\Obelix;
+use stdClass;
 
 class DotTest extends TestCase
 {
-    public function testGetItemsFromSimpleArrayAndSingleValue()
+    public function testWhenDeveloperPassInvalidValueToConstructor(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The items argument must be an array or Dot instance.');
+
+        new Obelix\Dot(new stdClass());
+    }
+
+    public function testWhenDeveloperPassInvalidValueToDelimiterSetter(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The delimiter must not be an empty string.');
+
+        $dot = new Obelix\Dot([]);
+        $dot->setDelimiter('');
+    }
+
+    public function testWhenDeveloperPassInvalidValueToWildcardSetter(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The wildcard must not be an empty string.');
+
+        $dot = new Obelix\Dot([]);
+        $dot->setWildcard('');
+    }
+
+    public function testGetItemsFromSimpleArrayAndSingleValue(): void
     {
         $array = [
             'foo' => [
@@ -28,7 +56,7 @@ class DotTest extends TestCase
         ], $result->getMap());
     }
 
-    public function testGetItemsFromSimpleArrayAndItReturnsCorrectAssociativeArray()
+    public function testGetItemsFromSimpleArrayAndItReturnsCorrectAssociativeArray(): void
     {
         $array = [
             'foo' => [
@@ -58,7 +86,7 @@ class DotTest extends TestCase
         ], $result->getMap());
     }
 
-    public function testGetItemsFromSimpleArrayAndItReturnsCorrectIndexedArray()
+    public function testGetItemsFromSimpleArrayAndItReturnsCorrectIndexedArray(): void
     {
         $array = [
             'foo' => [
@@ -88,7 +116,7 @@ class DotTest extends TestCase
         ], $result->getMap());
     }
 
-    public function testGetNotExistingItemsFromArray()
+    public function testGetNotExistingItemsFromArray(): void
     {
         $array = [
             'foo' => [
@@ -104,10 +132,10 @@ class DotTest extends TestCase
         $result = $dot->get('foo.bar.40', 'default');
 
         $this->assertSame('default', $result->getValue());
-        $this->assertSame([], $result->getMap());
+        $this->assertSame(['foo.bar.40' => 'default'], $result->getMap());
     }
 
-    public function testGetItemByIndexFromArray()
+    public function testGetItemByIndexFromArray(): void
     {
         $array = [
             'foo' => [
@@ -124,7 +152,7 @@ class DotTest extends TestCase
         ], $result->getMap());
     }
 
-    public function testGetItemsSelectedByWildcardSimpleCase()
+    public function testGetItemsSelectedByWildcardSimpleCase(): void
     {
         $array = [
             'foo' => [
@@ -152,7 +180,7 @@ class DotTest extends TestCase
         ], $result->getMap());
     }
 
-    public function testGetItemsSelectedByWildcardAtEndPathString()
+    public function testGetItemsSelectedByWildcardAtEndPathString(): void
     {
         $k = [
             ['key' => 1],
@@ -180,7 +208,7 @@ class DotTest extends TestCase
         ], $result->getMap());
     }
 
-    public function testGetItemsSelectedByWildcardHardCase()
+    public function testGetItemsSelectedByWildcardHardCase(): void
     {
         $array = [
             'test' => [
@@ -246,7 +274,7 @@ class DotTest extends TestCase
         ], $result->getMap());
     }
 
-    public function testDotReturnsCorrectCacheKeyValues()
+    public function testDotReturnsCorrectCacheKeyValues(): void
     {
         $array = [
             'foo' => [
@@ -264,7 +292,7 @@ class DotTest extends TestCase
         ], $dot->getCache());
     }
 
-    public function testDotCacheHit()
+    public function testDotCacheHit(): void
     {
         $array = [
             'foo' => [
@@ -295,7 +323,7 @@ class DotTest extends TestCase
         ], $keyHit->getMap());
     }
 
-    public function testCacheClearedOnDestructorCall()
+    public function testCacheClearedOnDestructorCall(): void
     {
         $array = [
             'foo' => [
@@ -318,7 +346,7 @@ class DotTest extends TestCase
         $this->assertSame([], $dot->toArray());
     }
 
-    public function testHowToDotObjectAcceptsDotObject()
+    public function testHowToDotObjectAcceptsDotObject(): void
     {
         $array = [
             'foo' => [
@@ -340,7 +368,7 @@ class DotTest extends TestCase
         $this->assertSame($array, $dot2->toArray());
     }
 
-    public function testHowToDotObjectWorksWithOtherDelimiterAndWildcard()
+    public function testHowToDotObjectWorksWithOtherDelimiterAndWildcard(): void
     {
         $array = [
             'foo' => [
@@ -359,7 +387,7 @@ class DotTest extends TestCase
         $this->assertSame([1, 2], $dot->get('foo:bar:@:key')->getValue());
     }
 
-    public function testGetItemWithWildcardAndAssociativeArray()
+    public function testGetItemWithWildcardAndAssociativeArray(): void
     {
         $array = [
             'foo' => [
@@ -385,7 +413,7 @@ class DotTest extends TestCase
         ], $dot->get('foo.*.*')->getMap());
     }
 
-    public function testGetItemWhereWildcardPassedAsSingleSymbol()
+    public function testGetItemWhereWildcardPassedAsSingleSymbol(): void
     {
         $array = [
             [1, 3, 4]
@@ -400,7 +428,7 @@ class DotTest extends TestCase
         ], $result->getMap());
     }
 
-    public function testGetItemWhenSecondKeyIsNotUniqueInSubArrays()
+    public function testGetItemWhenSecondKeyIsNotUniqueInSubArrays(): void
     {
         $array = [
             'server' => [
@@ -435,7 +463,7 @@ class DotTest extends TestCase
         ], $dot->get('server.headers')->getMap());
     }
 
-    public function testWhenALotOfManyKeysAndValuesAreSameAkaHardestTest()
+    public function testWhenALotOfManyKeysAndValuesAreSameAkaHardestTest(): void
     {
         $array = [
             'foo' => [
@@ -482,7 +510,7 @@ class DotTest extends TestCase
                     ],
                     true,
                     [],
-                    new \stdClass()
+                    new stdClass()
                 ]
             ],
             'bar' => 1,
@@ -519,7 +547,7 @@ class DotTest extends TestCase
         $this->assertSame(['foo.baz.acme' => $expected], $result->getMap());
 
         $result = $dot->get('foo.faa.2');
-        $this->assertInstanceOf(\stdClass::class, $result->getValue());
+        $this->assertInstanceOf(stdClass::class, $result->getValue());
         $this->assertSame($array['foo']['faa'][2], $result->getValue());
         $this->assertSame(['foo.faa.2' => $array['foo']['faa'][2]], $result->getMap());
 
