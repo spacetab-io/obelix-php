@@ -53,7 +53,7 @@ More examples you can found at [tests directory](./tests).
 
 The MIT License
 
-Copyright © 2020 spacetab.io, Inc. https://spacetab.io
+Copyright © 2022 spacetab.io, Inc. https://spacetab.io
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
