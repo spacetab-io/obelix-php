@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpFullyQualifiedNameUsageInspection */
+
 declare(strict_types=1);
 
 namespace Spacetab\Obelix;
@@ -32,7 +34,7 @@ final class Dot
      */
     public function __construct($items = [])
     {
-        if (is_array($items)) {
+        if (\is_array($items)) {
             $this->items = $items;
         } elseif (/** @infection-ignore-all */ $items instanceof self) {
             $this->items = $items->toArray();
@@ -83,8 +85,8 @@ final class Dot
         $pathway   = [];
         $flatArray = null;
 
-        $segments      = explode($this->delimiter, $path);
-        $countSegments = count($segments);
+        $segments      = \explode($this->delimiter, $path);
+        $countSegments = \count($segments);
 
         $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($this->items), RecursiveIteratorIterator::SELF_FIRST);
 
@@ -97,22 +99,29 @@ final class Dot
 
             if ($this->isUserPathEqualsRealPath($segments, $pathway)) {
                 $flatArray[
-                    implode($this->delimiter, array_slice($pathway, 0, $it->getDepth() + 1))
+                    \implode($this->delimiter, \array_slice($pathway, 0, $it->getDepth() + 1))
                 ] = $value;
             }
         }
 
-        $value = $flatArray === null ? $default : array_values($flatArray);
-        $flatArray = $flatArray ?? [$path => $default];
+        if ($flatArray === null) {
+            $map = [$path => $default];
 
-        if (is_countable($value) && count($value) === 1) {
-            // @phpstan-ignore-next-line
-            $value = $value[0];
+            // @infection-ignore-all
+            self::$cache[$path] = [$default, $map];
+
+            return new ResultSet($default, $map);
         }
 
-        self::$cache[$path] = [$value, $flatArray];
+        $val = \array_values($flatArray);
 
-        return new ResultSet($value, $flatArray);
+        if (\is_countable($val) && \count($val) === 1) {
+            $val = $val[0];
+        }
+
+        self::$cache[$path] = [$val, $flatArray];
+
+        return new ResultSet($val, $flatArray);
     }
 
     /**
@@ -135,7 +144,7 @@ final class Dot
             $val = $real[$i] ?? false;
 
             // to work with integer indexes in string path (for cases like "foo.0")
-            if (ctype_digit($item)) {
+            if (\ctype_digit($item)) {
                 $item = (int) $item;
             }
 

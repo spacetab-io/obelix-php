@@ -56,6 +56,22 @@ class DotTest extends TestCase
         ], $result->getMap());
     }
 
+    public function testGetDefaultValueWhenValueIsEqualsSingleItemSlice(): void
+    {
+        $array = [
+            'foo' => [
+                'bar' => [
+                    'baz' => 1
+                ]
+            ]
+        ];
+
+        $dot = new Obelix\Dot($array);
+        $result = $dot->get('test.path', ['defaultValue']);
+
+        $this->assertSame(['defaultValue'], $result->getValue());
+    }
+
     public function testGetItemsFromSimpleArrayAndItReturnsCorrectAssociativeArray(): void
     {
         $array = [
